@@ -1,0 +1,218 @@
+---
+title: "The Effects of Education and exercise time on obesity"
+author: "Jiatong Li"
+date: "Dec.18,2020"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(include = FALSE)
+library(ggplot2)
+library(car)
+library(Hmisc)
+library(gplots)
+
+
+work1=read.csv(file = "NPL.csv")
+head(work1)
+names(work1)
+
+
+work2<-work1[,c(1,4,8,11,12,21,31)]
+names(work2)
+
+
+
+work3<-(which(work2[,7]=='Education'))
+work3
+data1=work2[work3,]
+head(data1)
+
+data2<-(which(data1[,3]=="Percent of adults aged 18 years and older who have obesity"))
+data_question<-data1[data2,]
+head(data_question)
+
+
+
+data3<-(which(data_question[,2]!="National"))
+data_location=data_question[data3,]
+
+
+
+data4<-(which(data_location[,2]!="Guam"))
+data_location2=data_location[data4,]
+
+
+data5<-(which(data_location2[,2]!="Puerto Rico"))
+work_end=data_location2[data5,]
+head(work_end)
+
+
+names(work_end)
+
+
+
+data14<-(which(work_end[,1]=="2014"))
+data2014=work_end[data14,]
+head(data2014)
+
+
+da<-data2014[,c(2,4,6)]
+head(da)
+
+
+data_edu<-(which(da[,3]=="College graduate"))
+collage_data<-da[data_edu,]
+head(collage_data)
+
+ggplot(collage_data,aes(Data_Value,LocationDesc))+ geom_bar(stat="identity",fill="steelblue")
+
+
+
+library("nortest")
+ad.test(work_end$Data_Value)
+
+summary(work_end)
+describe(work_end)
+
+
+a<-which(work_end$Education=='Less than high school' )
+
+    work_end$Education[a]<-0
+
+    
+b<-which(work_end$Education=='High school graduate' )
+    work_end$Education[b]<-0
+    
+  
+c<-which(work_end$Education=='Some college or technical school' )
+    work_end$Education[c]<-1
+    
+
+d<-which(work_end$Education=='College graduate' )
+    work_end$Education[d]<-1
+
+head(work_end)
+work_1<-(which(work_end[,1]=="2014"))
+work_gre=work_end[work_1,]
+head(work_gre)
+```
+Abstract:
+
+This study is to discuss the influence of educational level and exercise time on the obesity rate of American adults. Firstly, it is believed that the obesity rate will be reduced to a greater extent with the improvement of people's exercise time and educational background. Through multiple linear regression, the relationship between obesity rate and educational level and exercise time in America is explored. The conclusion is that with the increase of exercise time and the improvement of education level, the obesity rate of American adults will decrease, which is in line with the initial hypothesis.
+
+Key words:     Education, Obesity, Exercise, Multiple linear regression.
+
+
+
+
+
+
+Introduction
+
+This study is interested in the influence of exercise time and education level on the obesity rate of American adults. A study of 195 different countries and regions in the New England Journal of Medicine in 2017 shows that 2 billion adults and children in the world are overweight or obese, and have health problems due to overweight, among which the obesity rate of adults and young people in the United States reaches 43%, ranking first in the world; In the past 30 years, the detection rate of adult obesity in the United States has increased twice, and the detection rate of adolescent obesity has increased four times, especially in areas with low education level. A large number of studies have shown that obesity will lead to hypertension, heart disease, diabetes and other diseases, as well as a higher and earlier death rate. Richard carmone, an American surgeon, also said, "Because of the rising obesity rate in adults, we may see for the first time a generation whose life expectancy is lower than that of parents. It can be seen that obesity has become an urgent problem to be solved in the development of the United States.
+
+In this analysis, we do multiple linear regression analysis on obesity rate, education and exercise time to infer the impact of education and exercise time on obesity, so as to provide solutions to control the growth of obesity rate of American adults. Data sets will be used to explore the relationship between explanatory variables and interpreted variables. In the part of method, I first describe the data sets, and then state several statistical methods used. The results of multiple linear regression analysis are provided in the part of result, and relevant data are visualized. The inference and conclusion of the data are provided in the conclusion section.
+
+
+
+Methods
+    
+The data set is collected on lionbridge website. The data collection year is from 2011 to 2016, with a total of 6 years of data. The data we used this time include Yearstart, LocationDesc, Question, Data _ Value, Education, Stratification Category 1, which are 6 variables. And the introduction of data point: the exercise time, in which exercise time is used as an explanatory variable to demonstrate the relationship between exercise time and obesity rate. From TABLE 1, we can get descriptive statistics of obesity rate and exercise time. We can see the frequency and distribution of the three variables from Figure 1.
+
+LocationDesc is a state in the United States and three other regions, which need to be removed. The five States with the least data are Alabama, Alaska, Arizona, Arkansas and California; The five States with the most data are Virginia, Washington, West Virginia, Wisconsin and Wyoming. The Question is used to determine the direction of the problem. this time, we chose percent of adults aged 18 years and older who have obesity. Data_Value is the specific value of adult obesity rate, Education is the classification variable of our research, there are four kinds of Less than high school, High school graduate, Some college or technical school, College graduate, and classification category 1 is the selection index used for data cleaning.
+    
+In this study, we will use multiple linear regression analysis, AD test and other methods. First, we assume that the obesity rate in the United States is affected by the average exercise time and education level of American adults. In regression analysis, if there are two or more independent variables, it is called multiple regression. In practice, a phenomenon is often associated with multiple factors. It is more effective and realistic to predict or estimate the dependent variable by the optimal combination of multiple independent variables. Anderson-Darling test is to test whether the dependent variable is approximately dependent or not and normal distribution. This test compares the empirical cumulative distribution function of sample data with the expected distribution when the data is assumed to be normal distribution. If the measured difference is large enough, the test will negate the original assumption that the population is normally distributed.
+    
+
+```{r, echo=FALSE}
+opar <- par(no.readonly=TRUE) 
+par(mfrow=c(1,3)) 
+attach(work_gre)
+hist(work_gre$Data_Value, breaks=20, xlab="obesity rate", col = "blue",
+     main="Distribution of obesity rate") 
+boxplot(work_gre$Data_Value ~ work_gre$Education, xlab="education category", main="Group education",col="red") 
+hist(work_gre$Exercise.time,xlab = "exercise time",main="distribution of exercise time", col="pink")
+par(opar)
+```
+
+
+    
+Model
+
+Obesity rate = β0+β1exercise.time+β2 education
+
+Obesity rate: Obesity rate of adults in 50 States in the United States in 2014
+
+Exercise time: the average daily exercise time of adults in 50 States in the United States in 2014, the units is hours
+
+Education: the educational level of adults in 50 States in the United States was divided into Less than high school, High school graduate, Some college or technical school and College graduate.
+
+
+
+
+
+
+
+Results
+    
+After we cleaned the data, we got the data set we wanted. Through AD test, we found that the obesity rate of the control variable approximately obeys the standard normal distribution (p-value= 2.584e-14), which shows that the data obeys the normal distribution and can be tested and assumed statistically. We get the results by assigning 1 to the degree above high school and 0 to the degree below high school, and doing multiple linear regression analysis on obesity rate with exercise time and Education.
+
+The regression equation was obtained as follows: 
+
+Obesity Rate = 38.7025-4.2558 Exercise Time-2.6098 Education 1 
+   
+As can be seen from table 2, the exercise time (p-value<2e-16) and Education (p-value= 2.16e-07) show that these two variables have significant influence on the dependent variable, and the regression parameters of exercise time and Education are -4.2558 and -2.6098, which can be interpreted as an increase of exercise time by one hour while keeping the educational background unchanged. On the premise of keeping the exercise time unchanged, the obesity rate of American adults with high school education or above is 2.6098 units lower than that with high school education or below. Therefore, with the increase of exercise time and educational background, the obesity rate of American adults will be greatly reduced. R2=0.6452 was obtained from the equation, which indicated that the regression equation explained 65% of the change of obesity rate, and the goodness of fit was good.
+
+```{r, echo=FALSE}
+fit <- lm(Data_Value~ Exercise.time+Education, data=work_gre)
+ 
+ summary(fit)
+```
+```{r include=FALSE}
+ fit <- lm(Data_Value~ Exercise.time+Education, data=work_gre)
+ 
+ summary(fit)
+ confint(fit)
+
+ exp(coef(fit)) 
+ coef(fit)
+
+library(ggplot2)
+
+ 
+ggplot(work_gre,aes(x=Exercise.time,y=Data_Value), shape = sex, colour = sex,ylab("Obesity rate")) + geom_point()
+ 
+summary(work_gre)
+describe(work_gre) 
+sd(work_gre$Exercise.time)
+
+
+```
+
+
+
+Discussion
+    
+We assume that the obesity rate of American adults is related to the exercise time and education level of American adults. We explore the influence of these two explanatory variables on obesity rate. We process the data to get an ideal data set, and fit the regression equation to get the conclusion we want.
+
+The results show that increasing the average exercise time and education level in the United States can reduce the obesity rate of American adults. Through this data set, the fitted regression equation can be explained that the obesity rate will decrease by 4.2558 units when the exercise time increases by one hour while keeping the educational background unchanged; On the premise of keeping the exercise time unchanged, the obesity rate of American adults with high school education or above is 2.6098 units lower than that with high school education or below.
+
+This analysis does not test whether there is a correlation between education level and exercise time. If there is a certain relationship between education level and exercise time, it is necessary to add interactive items and test the joint significance of their interactive items The regression equation has not been tested for robustness to see if the model and conclusion are reliable. Follow-up work will be carried out one by one.
+
+Obviously, with the improvement of exercise time and educational background, the obesity rate of American adults will decrease to a certain extent, which is consistent with our original conclusion. With the improvement of living standards, people pay more and more attention to their living habits and quality of life, especially those who are educated will pay more attention to their living standards, and they will deliberately keep healthy and keep fit. There are many factors that affect the obesity rate. Here we discuss the average exercise time of adults and people's education level in the data of 2014. Both exercise time and education level have a great influence on the obesity rate. The government can take relevant measures, such as optimizing the educational structure of the United States, increasing the qualification of grants in the United States, calling for mass fitness and expanding the number of students, which will affect the change of obesity rate of American adults to a certain extent.
+
+
+
+
+References
+
+[1] HYATTSVILLE，M D． Health，United States，2011: With special features on socioeco-nomic status and health [R] .U.S. Department of Health and Human Services，2012． 
+
+[2] OGDEN C L，CARROLL M D，KIT B K，et al. Prevalence of child- hood and adult obesity in the United and States ( 2008 － 2012 ) ［J］. Journal of the American Medical Asso-ciation，2014( 8) : 806 － 814．
+
+[3] ODPHP. Nutrition，physical activity，and obesity［EB /OL］.  [2019 － 09 － 08］． 
+
+[4]  HHS． Physical activity guidelines for Americans［EB/OL］.［2019 － 09 － 08］
